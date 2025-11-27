@@ -35,7 +35,10 @@ module Game_FSM(
     always @(*) begin
         next_state = state;
         case (state)
-            S_INIT: next_state = S_P1_START;
+            S_INIT: begin
+                if (btn0_roll) next_state = S_P1_ROLL; // Roll 버튼 누르면 게임 시작 (첫 롤)
+                else next_state = S_INIT; // 대기
+            end
             
             // --- PLAYER 1 ---
             S_P1_START: next_state = S_P1_WAIT;
@@ -78,7 +81,7 @@ module Game_FSM(
     end
 
     // 3. 출력 및 데이터 처리 로직 (Output Logic)
-    
+
     // roll_trigger를 조합 회로로 변경하여 상태 진입 즉시 신호 발생
     always @(*) begin
         roll_trigger = (state == S_P1_ROLL || state == S_P2_ROLL);
@@ -102,6 +105,8 @@ module Game_FSM(
                     round_num <= 1; 
                     p1_score <= 0; p2_score <= 0;
                     p1_upper_sum <= 0; p2_upper_sum <= 0;
+                    player_turn <= 1; // 초기 턴 설정
+                    roll_cnt <= 0;    // 초기 롤 카운트 설정
                 end
                 S_P1_START: begin
                     player_turn <= 1;
