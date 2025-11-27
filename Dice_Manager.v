@@ -55,4 +55,8 @@ module Dice_Manager(
         end
     end
 
+<<<<<<< HEAD
 endmodule
+=======
+endmodule
+>>>>>>> 0c3cb4fed3063647abc77ad9768dd2ccd4a481e9
