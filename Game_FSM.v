@@ -21,6 +21,9 @@ module Game_FSM(
 
     reg [3:0] state, next_state;
     reg [1:0] roll_cnt; // 턴당 3회 제한
+    
+    // 상단 보너스 계산을 위한 레지스터
+    reg [8:0] p1_upper_sum, p2_upper_sum;
 
     // 1. 상태 천이 로직 (State Transition)
     always @(posedge clk or negedge reset_n) begin
@@ -91,7 +94,9 @@ module Game_FSM(
 
             case (state)
                 S_INIT: begin
-                    round_num <= 1; p1_score <= 0; p2_score <= 0;
+                    round_num <= 1; 
+                    p1_score <= 0; p2_score <= 0;
+                    p1_upper_sum <= 0; p2_upper_sum <= 0;
                 end
                 S_P1_START: begin
                     player_turn <= 1;
@@ -110,6 +115,8 @@ module Game_FSM(
                 end
                 S_P1_CALC: begin
                     p1_score <= p1_score + current_calc_score;
+                    // 상단 항목(0~5)인 경우 상단 점수 누적
+                    if (category_idx <= 5) p1_upper_sum <= p1_upper_sum + current_calc_score;
                 end
                 
                 S_P2_START: begin
@@ -125,11 +132,29 @@ module Game_FSM(
                 end
                 S_P2_CALC: begin
                     p2_score <= p2_score + current_calc_score;
+                    // 상단 항목(0~5)인 경우 상단 점수 누적
+                    if (category_idx <= 5) p2_upper_sum <= p2_upper_sum + current_calc_score;
                 end
 
                 S_ROUND_CHK: begin
                     // 라운드 증가 (P2 턴 끝날 때만)
-                    if (next_state == S_P1_START) round_num <= round_num + 1;
+                    if (next_state == S_P1_START) begin
+                        round_num <= round_num + 1;
+                    end else if (next_state == S_GAME_END) begin
+                        // 게임 종료 직전 상단 보너스 정산
+                        if (p1_upper_sum >= 63) p1_score <= p1_score + 35;
+                        if (p2_upper_sum >= 63) p2_score <= p2_score + 35;
+                    end
+                end
+                
+                S_GAME_END: begin
+                    // 게임 종료 시 상단 보너스 체크 (63점 이상이면 +35점)
+                    // 한 번만 더해지도록 로직 처리가 필요하지만, 
+                    // 여기서는 S_GAME_END 상태 진입 직전에 처리하거나, 
+                    // S_ROUND_CHK에서 마지막 라운드일 때 미리 더해주는 것이 안전함.
+                    // 간단하게 구현하기 위해 S_ROUND_CHK에서 마지막 라운드 종료 시 처리하도록 수정 권장.
+                    // 하지만 현재 구조상 S_GAME_END에서 계속 머무르므로, 
+                    // S_ROUND_CHK -> S_GAME_END 넘어가는 시점에 더해주는 로직을 S_ROUND_CHK에 추가하겠습니다.
                 end
             endcase
         end

@@ -39,8 +39,12 @@ module Score_Calculator(
                 score_out = sum_all; 
             end
             4'd7: begin // 4 of a Kind (같은 숫자 4개 이상)
-                if (count[1]>=4 || count[2]>=4 || count[3]>=4 || count[4]>=4 || count[5]>=4 || count[6]>=4)
-                    score_out = sum_all;
+                if (count[1]>=4) score_out = 1 * 4;
+                else if (count[2]>=4) score_out = 2 * 4;
+                else if (count[3]>=4) score_out = 3 * 4;
+                else if (count[4]>=4) score_out = 4 * 4;
+                else if (count[5]>=4) score_out = 5 * 4;
+                else if (count[6]>=4) score_out = 6 * 4;
                 else score_out = 0;
             end
             4'd8: begin // Full House (3장 동일 + 2장 동일)
@@ -48,9 +52,9 @@ module Score_Calculator(
                 // 로직 단순화를 위해 3장인 숫자와 2장인 숫자가 존재하는지 확인
                 if ((count[1]==3 || count[2]==3 || count[3]==3 || count[4]==3 || count[5]==3 || count[6]==3) &&
                     (count[1]==2 || count[2]==2 || count[3]==2 || count[4]==2 || count[5]==2 || count[6]==2))
-                    score_out = 25; // 고정 점수
+                    score_out = sum_all; // 주사위 5개의 총 합
                 else if (count[1]==5 || count[2]==5 || count[3]==5 || count[4]==5 || count[5]==5 || count[6]==5)
-                    score_out = 25; // Yacht인 경우도 Full House 인정
+                    score_out = sum_all; // Yacht인 경우도 Full House 인정 (총 합)
                 else score_out = 0;
             end
             4'd9: begin // Small Straight (4개 연속) -> 구현 복잡하여 예시 단순화 (실제로는 정렬 필요)
@@ -58,13 +62,13 @@ module Score_Calculator(
                  if ((count[1]&&count[2]&&count[3]&&count[4]) || 
                      (count[2]&&count[3]&&count[4]&&count[5]) || 
                      (count[3]&&count[4]&&count[5]&&count[6]))
-                     score_out = 30;
+                     score_out = 15;
                  else score_out = 0;
             end
             4'd10: begin // Large Straight (5개 연속)
                  if ((count[1]&&count[2]&&count[3]&&count[4]&&count[5]) || 
                      (count[2]&&count[3]&&count[4]&&count[5]&&count[6]))
-                     score_out = 40;
+                     score_out = 30;
                  else score_out = 0;
             end
             4'd11: begin // Yacht (5개 모두 동일)

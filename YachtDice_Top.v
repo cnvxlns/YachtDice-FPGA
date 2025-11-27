@@ -9,29 +9,29 @@ module YachtDice_Top(
     output [7:0] SEG_SEL,  // 7-Segment 자릿수 선택
     
     // LCD Ports
-    output LCD_E,
-    output LCD_RS,
-    output LCD_RW,
-    output [7:0] LCD_DATA
+    output LCD_E,          // LCD Enable 신호
+    output LCD_RS,         // 레지스터 선택 (0:명령, 1:데이터)
+    output LCD_RW,         // 읽기/쓰기 선택 (0:쓰기, 1:읽기)
+    output [7:0] LCD_DATA  // LCD 데이터 버스
 );
 
     // 내부 연결 신호선 (Wires)
-    wire rst_n = ~RST_BTN; // Active Low 변환
-    wire btn0_clean, btn1_clean, btn2_clean, btn3_clean;
-    wire [2:0] d1, d2, d3, d4, d5;
-    wire [1:0] player_turn;
-    wire [3:0] state_debug;
-    wire roll_sig;
-    wire [3:0] cat_idx;
-    wire [3:0] round_val;
-    wire [8:0] p1_sc, p2_sc;
-    wire [7:0] calc_score;
+    wire rst_n = RST_BTN; // Active Low (KEY12 is 0 when pressed)
+    wire btn0_clean, btn1_clean, btn2_clean, btn3_clean; // 디바운싱된 버튼 신호
+    wire [2:0] d1, d2, d3, d4, d5; // 주사위 1~5의 값 (1~6)
+    wire [1:0] player_turn;        // 현재 턴인 플레이어 (1: P1, 2: P2)
+    wire [3:0] state_debug;        // FSM 현재 상태 (디버깅/표시용)
+    wire roll_sig;                 // 주사위 굴리기 트리거 신호
+    wire [3:0] cat_idx;            // 선택된 족보(카테고리) 인덱스
+    wire [3:0] round_val;          // 현재 라운드 (1~12)
+    wire [8:0] p1_sc, p2_sc;       // 플레이어 1, 2의 총점
+    wire [7:0] calc_score;         // 현재 주사위 조합에 대한 예상 점수
 
-    // 1. 버튼 디바운서 인스턴스 (4개)
-    Button_Debouncer db0 (.clk(CLK), .reset_n(rst_n), .btn_in(BTN[0]), .btn_out(btn0_clean));
-    Button_Debouncer db1 (.clk(CLK), .reset_n(rst_n), .btn_in(BTN[1]), .btn_out(btn1_clean));
-    Button_Debouncer db2 (.clk(CLK), .reset_n(rst_n), .btn_in(BTN[2]), .btn_out(btn2_clean));
-    Button_Debouncer db3 (.clk(CLK), .reset_n(rst_n), .btn_in(BTN[3]), .btn_out(btn3_clean));
+    // 1. 버튼 디바운서 인스턴스 (4개) - Active Low 버튼이므로 반전하여 입력
+    Button_Debouncer db0 (.clk(CLK), .reset_n(rst_n), .btn_in(~BTN[0]), .btn_out(btn0_clean));
+    Button_Debouncer db1 (.clk(CLK), .reset_n(rst_n), .btn_in(~BTN[1]), .btn_out(btn1_clean));
+    Button_Debouncer db2 (.clk(CLK), .reset_n(rst_n), .btn_in(~BTN[2]), .btn_out(btn2_clean));
+    Button_Debouncer db3 (.clk(CLK), .reset_n(rst_n), .btn_in(~BTN[3]), .btn_out(btn3_clean));
 
     // 2. FSM (게임 로직)
     Game_FSM fsm_inst (
@@ -77,10 +77,14 @@ module YachtDice_Top(
     // LED7: Player 1 Turn, LED8: Player 2 Turn
     assign LED[4:0] = SW[4:0]; 
     assign LED[5] = 1'b0; // 미사용
+    assign LED[6] = (player_turn == 2'd1); // P1 Turn
+    assign LED[7] = (player_turn == 2'd2); // P2 Turn
+
     // 7. LCD 컨트롤러 (추가됨)
     LCD_Controller lcd_inst (
         .clk(CLK), .reset_n(rst_n),
         .current_state(state_debug),
+        .round_num(round_val),
         .p1_score(p1_sc), .p2_score(p2_sc),
         .lcd_e(LCD_E), .lcd_rs(LCD_RS), .lcd_rw(LCD_RW), .lcd_data(LCD_DATA)
     );

@@ -2,14 +2,14 @@ module LCD_Controller(
     input clk,                  // 시스템 클럭 (50MHz)
     input reset_n,              // Active Low 리셋
     input [3:0] current_state,  // 현재 게임 FSM 상태 (Game_FSM에서 입력)
+    input [3:0] round_num,      // 현재 라운드 (1~12)
     input [8:0] p1_score,       // Player 1 현재 점수
     input [8:0] p2_score,       // Player 2 현재 점수
     
     output reg lcd_rs,          // LCD Register Select (0: Command, 1: Data)
     output reg lcd_rw,          // LCD Read/Write (0: Write, 1: Read) - 항상 0(Write) 사용
     output reg lcd_e,           // LCD Enable 신호
-    output reg [7:0] lcd_data   // LCD 8-
-    bit 데이터 버스
+    output reg [7:0] lcd_data   // LCD 8-bit 데이터 버스
 );
 
     // [모듈 설명]
@@ -48,6 +48,7 @@ module LCD_Controller(
     reg [8:0] old_p1_score;
     reg [8:0] old_p2_score;
     reg [3:0] old_game_state;
+    reg [3:0] old_round_num;
     
     reg refresh_req;          // 화면 갱신 요청 플래그
     reg [4:0] char_idx;       // 현재 전송 중인 문자 인덱스 (0~15)
@@ -81,16 +82,18 @@ module LCD_Controller(
             old_p1_score <= 0;
             old_p2_score <= 0;
             old_game_state <= 0;
+            old_round_num <= 0;
             refresh_req <= 0;
             // 버퍼를 공백으로 초기화
             for(i=0; i<16; i=i+1) begin line1[i] <= " "; line2[i] <= " "; end
         end else begin
             // 입력값 변경 감지 (점수 또는 상태가 바뀌면 갱신 요청)
-            if (p1_score != old_p1_score || p2_score != old_p2_score || current_state != old_game_state) begin
+            if (p1_score != old_p1_score || p2_score != old_p2_score || current_state != old_game_state || round_num != old_round_num) begin
                 refresh_req <= 1; // LCD 갱신 트리거
                 old_p1_score <= p1_score;
                 old_p2_score <= p2_score;
                 old_game_state <= current_state;
+                old_round_num <= round_num;
                 
                 // [Line 1 업데이트] 게임 상태 메시지
                 if (current_state == S_INIT) begin
@@ -105,10 +108,17 @@ module LCD_Controller(
                     line1[4] <= " "; line1[5] <= "E"; line1[6] <= "N"; line1[7] <= "D"; 
                     for(i=8; i<16; i=i+1) line1[i] <= " ";
                 end else begin
-                    // "PLAYING         "
-                    line1[0] <= "P"; line1[1] <= "L"; line1[2] <= "A"; line1[3] <= "Y"; 
-                    line1[4] <= "I"; line1[5] <= "N"; line1[6] <= "G"; 
-                    for(i=7; i<16; i=i+1) line1[i] <= " ";
+                    // "ROUND XX        "
+                    line1[0] <= "R"; line1[1] <= "O"; line1[2] <= "U"; line1[3] <= "N"; 
+                    line1[4] <= "D"; line1[5] <= " "; 
+                    if (round_num >= 10) begin
+                        line1[6] <= "1";
+                        line1[7] <= get_char(round_num - 10);
+                    end else begin
+                        line1[6] <= get_char(round_num);
+                        line1[7] <= " ";
+                    end
+                    for(i=8; i<16; i=i+1) line1[i] <= " ";
                 end
                 
                 // [Line 2 업데이트] 점수 표시 "P1:XXX  P2:XXX"

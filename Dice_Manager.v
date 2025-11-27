@@ -10,20 +10,33 @@ module Dice_Manager(
     // roll_en 신호가 들어올 때, hold_sw가 0인(Hold되지 않은) 주사위만 값을 갱신합니다.
 
     reg [31:0] lfsr_reg;
+    reg [31:0] seed_counter; // 시드값 생성을 위한 카운터
+    reg first_roll;          // 첫 번째 굴리기 여부 확인
 
     // LFSR 난수 생성 로직
     wire feedback = lfsr_reg[31] ^ lfsr_reg[21] ^ lfsr_reg[1] ^ lfsr_reg[0];
 
     always @(posedge clk or negedge reset_n) begin
         if (!reset_n) begin
-            lfsr_reg <= 32'hACE1; // 초기 시드값 (0이 아니어야 함)
+            lfsr_reg <= 32'hACE1; // 초기값
+            seed_counter <= 0;
+            first_roll <= 1;      // 리셋 시 첫 굴리기 상태로 설정
             dice1 <= 1; dice2 <= 1; dice3 <= 1; dice4 <= 1; dice5 <= 1;
         end else begin
-            // 매 클럭마다 난수 상태 변경 (매우 빠르게 변함)
+            // 1. 시드 카운터는 계속 증가 (사람의 버튼 입력 타이밍에 따라 값이 달라짐)
+            seed_counter <= seed_counter + 1;
+
+            // 2. LFSR 난수 생성 (계속 섞어줌)
             lfsr_reg <= {lfsr_reg[30:0], feedback};
 
-            // 굴리기 신호가 왔을 때 (BTN0 누름)
+            // 3. 굴리기 신호가 왔을 때 (BTN0 누름)
             if (roll_en) begin
+                // 첫 번째 굴리기라면, 현재 카운터 값을 시드에 섞어줌 (랜덤성 확보)
+                if (first_roll) begin
+                    lfsr_reg <= lfsr_reg ^ seed_counter;
+                    first_roll <= 0;
+                end
+
                 // SW가 0(Low)일 때만 주사위 값 갱신
                 // % 6 + 1 연산으로 1~6 사이의 값 추출
                 if (!hold_sw[0]) dice1 <= (lfsr_reg[2:0] % 6) + 1;
