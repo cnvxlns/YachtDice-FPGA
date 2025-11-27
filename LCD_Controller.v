@@ -53,6 +53,8 @@ module LCD_Controller(
     reg refresh_req;          // 화면 갱신 요청 플래그
     reg [4:0] char_idx;       // 현재 전송 중인 문자 인덱스 (0~15)
     reg line_sel;             // 현재 전송 중인 줄 (0: Line 1, 1: Line 2)
+    
+    reg first_init;           // 리셋 후 최초 갱신을 위한 플래그
 
     // ============================================================================
     // 2. 유틸리티 함수 (Character Encoding)
@@ -84,12 +86,15 @@ module LCD_Controller(
             old_game_state <= 0;
             old_round_num <= 0;
             refresh_req <= 0;
+            first_init <= 1; // 리셋 시 플래그 설정
             // 버퍼를 공백으로 초기화
             for(i=0; i<16; i=i+1) begin line1[i] <= " "; line2[i] <= " "; end
         end else begin
             // 입력값 변경 감지 (점수 또는 상태가 바뀌면 갱신 요청)
-            if (p1_score != old_p1_score || p2_score != old_p2_score || current_state != old_game_state || round_num != old_round_num) begin
+            // 또는 리셋 후 첫 실행(first_init)일 때 강제 갱신
+            if (p1_score != old_p1_score || p2_score != old_p2_score || current_state != old_game_state || round_num != old_round_num || first_init) begin
                 refresh_req <= 1; // LCD 갱신 트리거
+                first_init <= 0;  // 플래그 해제
                 old_p1_score <= p1_score;
                 old_p2_score <= p2_score;
                 old_game_state <= current_state;
