@@ -80,39 +80,41 @@ module Display_Controller(
         endcase
     end
 
-    // 2. 7-Segment 패턴 디코딩 (Active Low: 0이 켜짐)
+    // 2. 7-Segment 패턴 디코딩 (수정됨: Active High - 1이 켜짐)
+    // 사용자의 보드가 Common Cathode 방식(또는 Active High 입력)으로 확인되어 패턴을 반전시킵니다.
     always @(*) begin
         case (digit_val)
-            5'h00: seg_data = 8'b1100_0000; // 0
-            5'h01: seg_data = 8'b1111_1001; // 1
-            5'h02: seg_data = 8'b1010_0100; // 2
-            5'h03: seg_data = 8'b1011_0000; // 3
-            5'h04: seg_data = 8'b1001_1001; // 4
-            5'h05: seg_data = 8'b1001_0010; // 5
-            5'h06: seg_data = 8'b1000_0010; // 6
-            5'h07: seg_data = 8'b1111_1000; // 7
-            5'h08: seg_data = 8'b1000_0000; // 8
-            5'h09: seg_data = 8'b1001_0000; // 9
+            // 1이 켜짐 (Active High)
+            5'h00: seg_data = 8'b0011_1111; // 0 (0x3F)
+            5'h01: seg_data = 8'b0000_0110; // 1 (0x06)
+            5'h02: seg_data = 8'b0101_1011; // 2 (0x5B)
+            5'h03: seg_data = 8'b0100_1111; // 3 (0x4F)
+            5'h04: seg_data = 8'b0110_0110; // 4 (0x66)
+            5'h05: seg_data = 8'b0110_1101; // 5 (0x6D)
+            5'h06: seg_data = 8'b0111_1101; // 6 (0x7D)
+            5'h07: seg_data = 8'b0000_0111; // 7 (0x07)
+            5'h08: seg_data = 8'b0111_1111; // 8 (0x7F)
+            5'h09: seg_data = 8'b0110_1111; // 9 (0x6F)
             
             // 알파벳 패턴 정의
-            5'h0A: seg_data = 8'b1000_1000; // A (YA)
-            5'h0C: seg_data = 8'b1100_0110; // C (CH)
-            5'h0F: seg_data = 8'b1000_1110; // F (FH)
+            5'h0A: seg_data = 8'b0111_0111; // A (YA)
+            5'h0C: seg_data = 8'b0011_1001; // C (CH)
+            5'h0F: seg_data = 8'b0111_0001; // F (FH)
             
-            5'h10: seg_data = 8'b1100_0111; // L (LS)
-            5'h11: seg_data = 8'b1010_1011; // n (4n)
-            5'h12: seg_data = 8'b1000_1001; // H (CH, FH)
-            5'h15: seg_data = 8'b1001_0010; // S (SS, LS)
-            5'h19: seg_data = 8'b1001_0001; // Y (YA)
+            5'h10: seg_data = 8'b0011_1000; // L (LS)
+            5'h11: seg_data = 8'b0101_0100; // n (4n)
+            5'h12: seg_data = 8'b0111_0110; // H (CH, FH)
+            5'h15: seg_data = 8'b0110_1101; // S (SS, LS) - 5와 동일
+            5'h19: seg_data = 8'b0110_1110; // Y (YA)
             
-            5'h1F: seg_data = 8'b1111_1111; // OFF (Blank)
-            default: seg_data = 8'b1111_1111;
+            5'h1F: seg_data = 8'b0000_0000; // OFF (Blank)
+            default: seg_data = 8'b0000_0000;
         endcase
         
-        // 소수점(DP) 제어: 7번 비트가 DP (Active Low)
-        if (dot_en) seg_data[7] = 0; 
+        // 소수점(DP) 제어: 7번 비트가 DP (Active High: 1이 켜짐)
+        if (dot_en) seg_data[7] = 1; 
         
-        // 자릿수 선택 (Active Low)
+        // 자릿수 선택 (Active Low 유지)
         seg_sel = ~(1 << scan_idx);
     end
 
