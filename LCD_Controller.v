@@ -251,7 +251,7 @@ module LCD_Controller(
                                         end else begin
                                             // 두 번째 줄까지 모두 완료 -> 대기 상태로
                                             state_lcd <= IDLE;
-                                            refresh_req <= 0;
+                                            // refresh_req는 첫 번째 always 블록에서 IDLE 상태일 때 해제됨
                                         end
                                     end else begin
                                         // 다음 문자 전송

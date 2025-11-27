@@ -78,17 +78,22 @@ module Game_FSM(
     end
 
     // 3. 출력 및 데이터 처리 로직 (Output Logic)
+    
+    // roll_trigger를 조합 회로로 변경하여 상태 진입 즉시 신호 발생
+    always @(*) begin
+        roll_trigger = (state == S_P1_ROLL || state == S_P2_ROLL);
+    end
+
     always @(posedge clk or negedge reset_n) begin
         if (!reset_n) begin
             round_num <= 1;
             p1_score <= 0; p2_score <= 0;
             roll_cnt <= 0;
             category_idx <= 0;
-            roll_trigger <= 0;
+            // roll_trigger <= 0; // 조합 회로로 이동
             player_turn <= 0;
         end else begin
-            // 롤 트리거는 Pulse 형태로 만들어줘야 함 (여기선 상태 기반으로 제어)
-            roll_trigger <= (state == S_P1_ROLL || state == S_P2_ROLL);
+            // roll_trigger <= (state == S_P1_ROLL || state == S_P2_ROLL); // 삭제
 
             current_state <= state; // 디버깅용
 

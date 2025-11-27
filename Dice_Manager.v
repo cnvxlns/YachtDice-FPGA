@@ -21,7 +21,7 @@ module Dice_Manager(
             lfsr_reg <= 32'hACE1; // 초기값
             seed_counter <= 0;
             first_roll <= 1;      // 리셋 시 첫 굴리기 상태로 설정
-            dice1 <= 1; dice2 <= 1; dice3 <= 1; dice4 <= 1; dice5 <= 1;
+            dice1 <= 0; dice2 <= 0; dice3 <= 0; dice4 <= 0; dice5 <= 0;
         end else begin
             // 1. 시드 카운터는 계속 증가 (사람의 버튼 입력 타이밍에 따라 값이 달라짐)
             seed_counter <= seed_counter + 1;

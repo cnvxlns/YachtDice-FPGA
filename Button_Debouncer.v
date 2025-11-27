@@ -29,8 +29,9 @@ module Button_Debouncer(
                 cnt <= 0;
             end else begin
                 cnt <= cnt + 1;
-                // 일정 시간(예: 2^20 클럭) 경과 시 상태 변경 인정
-                if (cnt == 20'hFFFFF) begin
+                // 일정 시간(예: 2^16 클럭, 약 1.3ms @ 50MHz) 경과 시 상태 변경 인정
+                // 반응성을 높이기 위해 카운터 값을 줄임 (기존 20'hFFFFF -> 20'h0FFFF)
+                if (cnt == 20'h0FFFF) begin
                     btn_stable <= btn_sync_1;
                     // 버튼이 눌린 순간(0->1)에만 1클럭 펄스 출력 (Rising Edge Detect)
                     if (btn_sync_1 == 1'b1) btn_out <= 1'b1;
