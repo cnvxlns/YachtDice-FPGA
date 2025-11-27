@@ -12,9 +12,8 @@ module Dice_Manager(
     // reset 동안 계속 증가하는 seed mix (reset 해제 타이밍 → 매번 다른 값)
     reg [31:0] seed_mix;
 
-    // LFSR feedback 계산
+    // LFSR feedback 계산 (32, 22, 2, 1번째 비트를 XOR)
     wire feedback = lfsr_reg[31] ^ lfsr_reg[21] ^ lfsr_reg[1] ^ lfsr_reg[0];
-
 
     // ------------------------------------------------------------
     // [Seed Mix 증가 로직] 
@@ -22,9 +21,9 @@ module Dice_Manager(
     // ------------------------------------------------------------
     always @(posedge clk or negedge reset_n) begin
         if (!reset_n)
+            // 리셋 동안 클럭 주기에 맞춰 seed_mix를 계속 증가
             seed_mix <= seed_mix + 32'h1;
     end
-
 
     // ------------------------------------------------------------
     // [LFSR 및 Dice 갱신 로직]
@@ -35,11 +34,14 @@ module Dice_Manager(
             // reset 해제 타이밍 기반 랜덤 시드 생성
             lfsr_reg <= (32'hACE1 ^ seed_mix);
 
-            // 기본 주사위값 초기화
-            dice1 <= 1; dice2 <= 1; dice3 <= 1; dice4 <= 1; dice5 <= 1;
-
+            // 기본 주사위값 초기화 (각 주사위의 초기 값 1)
+            dice1 <= 1; 
+            dice2 <= 1; 
+            dice3 <= 1; 
+            dice4 <= 1; 
+            dice5 <= 1;
         end else begin
-            // LFSR 상태 업데이트 (매 clk)
+            // LFSR 상태 업데이트 (매 clk에서 시프트)
             lfsr_reg <= {lfsr_reg[30:0], feedback};
 
             // roll_en = 1일 때 Hold되지 않은 주사위만 갱신
