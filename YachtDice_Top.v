@@ -1,7 +1,7 @@
 module YachtDice_Top(
     input CLK,             // 시스템 클럭
     input RST_BTN,         // 리셋 버튼
-    input [3:0] BTN,       // BTN0~3
+    input [5:0] BTN,       // BTN0~5 (Key01~Key06)
     input [4:0] SW,        // SW1~5 (Hold)
     
     output [7:0] LED,      // LED1~5(Hold), LED7(P1), LED8(P2)
@@ -31,11 +31,15 @@ module YachtDice_Top(
     wire [8:0] p1_sc, p2_sc;       // 플레이어 1, 2의 총점
     wire [7:0] calc_score;         // 현재 주사위 조합에 대한 예상 점수
 
-    // 1. 버튼 디바운서 인스턴스 (4개) - Active Low 버튼이므로 반전하여 입력
+    // 1. 버튼 디바운서 인스턴스
+    // BTN[0] (Key01): Roll
+    // BTN[1] (Key02): Select
+    // BTN[4] (Key05): Prev (변경됨)
+    // BTN[5] (Key06): Next (변경됨)
     Button_Debouncer db0 (.clk(CLK), .reset_n(rst_n), .btn_in(~BTN[0]), .btn_out(btn0_clean));
     Button_Debouncer db1 (.clk(CLK), .reset_n(rst_n), .btn_in(~BTN[1]), .btn_out(btn1_clean));
-    Button_Debouncer db2 (.clk(CLK), .reset_n(rst_n), .btn_in(~BTN[2]), .btn_out(btn2_clean));
-    Button_Debouncer db3 (.clk(CLK), .reset_n(rst_n), .btn_in(~BTN[3]), .btn_out(btn3_clean));
+    Button_Debouncer db2 (.clk(CLK), .reset_n(rst_n), .btn_in(~BTN[4]), .btn_out(btn2_clean)); // Key05
+    Button_Debouncer db3 (.clk(CLK), .reset_n(rst_n), .btn_in(~BTN[5]), .btn_out(btn3_clean)); // Key06
 
     // 2. FSM (게임 로직)
     Game_FSM fsm_inst (
