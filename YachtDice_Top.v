@@ -83,9 +83,10 @@ module YachtDice_Top(
 
     // 6. LED 출력 연결
     // LED1~5: Hold 상태 표시 (스위치 그대로 연결)
+    // LED6: 점수 선택 모드 (Select Phase) 표시
     // LED7: Player 1 Turn, LED8: Player 2 Turn
     assign LED[4:0] = SW[4:0]; 
-    assign LED[5] = 1'b0; // 미사용
+    assign LED[5] = (state_debug == 4'd4 || state_debug == 4'd9); // S_P1_SELECT(4) or S_P2_SELECT(9)
     assign LED[6] = (player_turn == 2'd1); // P1 Turn
     assign LED[7] = (player_turn == 2'd2); // P2 Turn
 
