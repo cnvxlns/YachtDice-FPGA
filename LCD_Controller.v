@@ -108,10 +108,23 @@ module LCD_Controller(
                     line1[8] <= "R"; line1[9] <= "T"; 
                     for(i=10; i<16; i=i+1) line1[i] <= " ";
                 end else if (current_state == S_GAME_END) begin
-                    // "GAME END        "
+                    // "GAME END" + 승자 표시
                     line1[0] <= "G"; line1[1] <= "A"; line1[2] <= "M"; line1[3] <= "E"; 
                     line1[4] <= " "; line1[5] <= "E"; line1[6] <= "N"; line1[7] <= "D"; 
-                    for(i=8; i<16; i=i+1) line1[i] <= " ";
+                    
+                    if (p1_score > p2_score) begin
+                        // " P1 WIN "
+                        line1[8] <= " "; line1[9] <= "P"; line1[10] <= "1"; line1[11] <= " ";
+                        line1[12] <= "W"; line1[13] <= "I"; line1[14] <= "N"; line1[15] <= " ";
+                    end else if (p2_score > p1_score) begin
+                        // " P2 WIN "
+                        line1[8] <= " "; line1[9] <= "P"; line1[10] <= "2"; line1[11] <= " ";
+                        line1[12] <= "W"; line1[13] <= "I"; line1[14] <= "N"; line1[15] <= " ";
+                    end else begin
+                        // "  DRAW  "
+                        line1[8] <= " "; line1[9] <= " "; line1[10] <= "D"; line1[11] <= "R";
+                        line1[12] <= "A"; line1[13] <= "W"; line1[14] <= " "; line1[15] <= " ";
+                    end
                 end else begin
                     // "ROUND XX        "
                     line1[0] <= "R"; line1[1] <= "O"; line1[2] <= "U"; line1[3] <= "N"; 
