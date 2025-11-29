@@ -121,6 +121,10 @@ module Game_FSM(
                     roll_cnt <= 0;
                     category_idx <= first_free(used_mask_p1);
                 end
+                S_P1_WAIT: begin
+                    if (btn3_next) category_idx <= next_free(category_idx, 1'b1, used_mask_p1);
+                    else if (btn2_prev) category_idx <= next_free(category_idx, 1'b0, used_mask_p1);
+                end
                 S_P1_ROLL: if (next_state != S_P1_ROLL) roll_cnt <= roll_cnt + 1;
                 S_P1_SELECT: begin
                     if (btn3_next) category_idx <= next_free(category_idx, 1'b1, used_mask_p1);
@@ -136,6 +140,10 @@ module Game_FSM(
                     player_turn <= 2;
                     roll_cnt <= 0;
                     category_idx <= first_free(used_mask_p2);
+                end
+                S_P2_WAIT: begin
+                    if (btn3_next) category_idx <= next_free(category_idx, 1'b1, used_mask_p2);
+                    else if (btn2_prev) category_idx <= next_free(category_idx, 1'b0, used_mask_p2);
                 end
                 S_P2_ROLL: if (next_state != S_P2_ROLL) roll_cnt <= roll_cnt + 1;
                 S_P2_SELECT: begin

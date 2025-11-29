@@ -37,7 +37,7 @@ module Display_Controller(
             end
             
             3'd6: begin // Digit 6: 카테고리 앞글자
-                if (state == 4 || state == 9) begin
+                if ((state >= 2 && state <= 4) || (state >= 7 && state <= 9)) begin
                     case (category_idx)
                         0: begin digit_val = 1; dot_en = 1; end // 1. (Aces)
                         1: begin digit_val = 2; dot_en = 1; end // 2. (Twos)
@@ -57,7 +57,7 @@ module Display_Controller(
             end
             
             3'd7: begin // Digit 7: 카테고리 뒷글자
-                if (state == 4 || state == 9) begin
+                if ((state >= 2 && state <= 4) || (state >= 7 && state <= 9)) begin
                     case (category_idx)
                         0: digit_val = 5'h1F; // (꺼짐)
                         1: digit_val = 5'h1F; // (꺼짐)
