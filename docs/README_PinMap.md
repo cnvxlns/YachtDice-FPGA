@@ -54,7 +54,7 @@
 | **LED[2]** | **M2** | LED_D3      | 주사위 3 Hold 상태 표시 (ON) |
 | **LED[3]** | **N7** | LED_D4      | 주사위 4 Hold 상태 표시 (ON) |
 | **LED[4]** | **M7** | LED_D5      | 주사위 5 Hold 상태 표시 (ON) |
-| **LED[5]** | **M3** | LED_D6      | *(미사용 - Always OFF)*    |
+| **LED[5]** | **M3** | LED_D6      | **Select Phase** 표시      |
 | **LED[6]** | **M1** | LED_D7      | **Player 1 Turn** 표시 |
 | **LED[7]** | **N5** | LED_D8      | **Player 2 Turn** 표시 |
 
