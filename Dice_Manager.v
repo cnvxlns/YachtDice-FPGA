@@ -3,6 +3,7 @@ module Dice_Manager(
     input reset_n,
     input roll_en,          // FSM에서 오는 '굴리기' 신호
     input [4:0] hold_sw,    // DIP 스위치(Hold 설정)
+    input clear_dice,
     output reg [2:0] dice1, dice2, dice3, dice4, dice5 // 각 주사위값(1~6)
 );
 
@@ -47,7 +48,13 @@ module Dice_Manager(
             lfsr_reg <= {lfsr_reg[30:0], feedback};
 
             // roll_en = 1이면 Hold되지 않은 주사위만 갱신
-            if (roll_en) begin
+            if (clear_dice) begin
+                dice1 <= 0;
+                dice2 <= 0;
+                dice3 <= 0;
+                dice4 <= 0;
+                dice5 <= 0;
+            end else if (roll_en) begin
                 if (!hold_sw[0]) dice1 <= (lfsr_reg[ 2: 0] % 6) + 1;
                 if (!hold_sw[1]) dice2 <= (lfsr_reg[ 5: 3] % 6) + 1;
                 if (!hold_sw[2]) dice3 <= (lfsr_reg[ 8: 6] % 6) + 1;
