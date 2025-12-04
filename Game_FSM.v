@@ -1,11 +1,14 @@
 module Game_FSM(
     input clk, reset_n,
     input btn0_roll, btn1_sel, btn2_prev, btn3_next,
+    input [4:0] hold_sw,
     input [7:0] current_calc_score,
 
     output reg [3:0] current_state,
     output reg [1:0] player_turn,        // 1: P1, 2: P2
     output reg roll_trigger,
+    output [1:0] roll_cnt_out,           // roll count of current turn (0~3)
+    output dice_clear,                   // pulse to clear dice at turn start
     output reg [3:0] category_idx,
     output reg [3:0] round_num,          // 1~12
     output reg [8:0] p1_score,
@@ -121,7 +124,7 @@ module Game_FSM(
                     roll_cnt <= 0;
                     category_idx <= first_free(used_mask_p1);
                 end
-                S_P1_ROLL: if (next_state != S_P1_ROLL) roll_cnt <= roll_cnt + 1;
+                S_P1_ROLL: if (next_state != S_P1_ROLL && !(roll_cnt == 0 && |hold_sw)) roll_cnt <= roll_cnt + 1;
                 S_P1_SELECT: begin
                     if (btn3_next) category_idx <= next_free(category_idx, 1'b1, used_mask_p1);
                     else if (btn2_prev) category_idx <= next_free(category_idx, 1'b0, used_mask_p1);
@@ -137,7 +140,7 @@ module Game_FSM(
                     roll_cnt <= 0;
                     category_idx <= first_free(used_mask_p2);
                 end
-                S_P2_ROLL: if (next_state != S_P2_ROLL) roll_cnt <= roll_cnt + 1;
+                S_P2_ROLL: if (next_state != S_P2_ROLL && !(roll_cnt == 0 && |hold_sw)) roll_cnt <= roll_cnt + 1;
                 S_P2_SELECT: begin
                     if (btn3_next) category_idx <= next_free(category_idx, 1'b1, used_mask_p2);
                     else if (btn2_prev) category_idx <= next_free(category_idx, 1'b0, used_mask_p2);
@@ -152,4 +155,9 @@ module Game_FSM(
             endcase
         end
     end
+
+    // Expose roll count to other modules (e.g., Dice_Manager)
+    assign roll_cnt_out = roll_cnt;
+    // Clear dice outputs when a new player's turn starts
+    assign dice_clear = (state == S_P1_START) || (state == S_P2_START);
 endmodule
