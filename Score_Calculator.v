@@ -7,6 +7,7 @@ module Score_Calculator(
     // 1. 각 주사위 눈금(1~6)이 몇 개 나왔는지 개수(Count)를 셉니다.
     // 2. 카테고리(category_sel)에 따라 조건문을 수행하여 점수를 부여합니다.
     
+    
     integer i;
     reg [2:0] count [1:6]; // 1~6 눈금의 등장 횟수 저장
     reg [5:0] sum_all;     // 주사위 5개의 합
