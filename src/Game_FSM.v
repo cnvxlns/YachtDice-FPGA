@@ -2,6 +2,8 @@ module Game_FSM(
     input clk, reset_n,
     input btn0_roll, btn1_sel, btn2_prev, btn3_next,
     input [7:0] current_calc_score,
+    input [4:0] hold_sw,
+    input [2:0] d1, d2, d3, d4, d5,
 
     output reg [3:0] current_state,
     output reg [1:0] player_turn,        // 1: P1, 2: P2
@@ -9,7 +11,8 @@ module Game_FSM(
     output reg [3:0] category_idx,
     output reg [3:0] round_num,          // 1~12
     output reg [8:0] p1_score,
-    output reg [8:0] p2_score
+    output reg [8:0] p2_score,
+    output reg turn_start
 );
 
     localparam S_INIT = 0, S_P1_START = 1, S_P1_WAIT = 2, S_P1_ROLL = 3,
@@ -21,6 +24,7 @@ module Game_FSM(
     reg [3:0] state, next_state;
     reg [1:0] roll_cnt;
     reg [11:0] used_mask_p1, used_mask_p2; // 1이면 이미 사용한 카테고리
+    wire dice_ready = (d1 != 0 && d2 != 0 && d3 != 0 && d4 != 0 && d5 != 0);
     
     // 상단 보너스 관련 레지스터
     reg [8:0] p1_upper_score, p2_upper_score; // 상단 항목(1~6) 점수 합계
@@ -78,20 +82,20 @@ module Game_FSM(
             S_INIT: next_state = S_P1_START;
             S_P1_START: next_state = S_P1_WAIT;
             S_P1_WAIT: begin
-                if (btn0_roll && roll_cnt < 3) next_state = S_P1_ROLL;
-                else if (btn1_sel) next_state = S_P1_SELECT;
+                if (btn0_roll && roll_cnt < 3 && !(roll_cnt == 0 && |hold_sw)) next_state = S_P1_ROLL;
+                else if (btn1_sel && dice_ready) next_state = S_P1_SELECT;
             end
             S_P1_ROLL: next_state = (roll_cnt == 3) ? S_P1_SELECT : S_P1_WAIT;
-            S_P1_SELECT: if (btn1_sel && !used_mask_p1[category_idx]) next_state = S_P1_CALC;
+            S_P1_SELECT: if (btn1_sel && !used_mask_p1[category_idx] && dice_ready) next_state = S_P1_CALC;
             S_P1_CALC: next_state = S_P2_START;
 
             S_P2_START: next_state = S_P2_WAIT;
             S_P2_WAIT: begin
-                if (btn0_roll && roll_cnt < 3) next_state = S_P2_ROLL;
-                else if (btn1_sel) next_state = S_P2_SELECT;
+                if (btn0_roll && roll_cnt < 3 && !(roll_cnt == 0 && |hold_sw)) next_state = S_P2_ROLL;
+                else if (btn1_sel && dice_ready) next_state = S_P2_SELECT;
             end
             S_P2_ROLL: next_state = (roll_cnt == 3) ? S_P2_SELECT : S_P2_WAIT;
-            S_P2_SELECT: if (btn1_sel && !used_mask_p2[category_idx]) next_state = S_P2_CALC;
+            S_P2_SELECT: if (btn1_sel && !used_mask_p2[category_idx] && dice_ready) next_state = S_P2_CALC;
             S_P2_CALC: next_state = S_ROUND_CHK;
 
             S_ROUND_CHK: next_state = (round_num >= 12) ? S_GAME_END : S_P1_START;
@@ -107,11 +111,13 @@ module Game_FSM(
             roll_cnt <= 0;
             category_idx <= 0;
             roll_trigger <= 0;
+            turn_start <= 0;
             player_turn <= 0;
             used_mask_p1 <= 0;
             used_mask_p2 <= 0;
         end else begin
             roll_trigger <= (state == S_P1_ROLL || state == S_P2_ROLL);
+            turn_start <= (state == S_P1_START || state == S_P2_START);
             current_state <= state;
 
             case (state)
@@ -138,7 +144,7 @@ module Game_FSM(
                     else if (btn2_prev) category_idx <= next_free(category_idx, 1'b0, used_mask_p1);
                     else if (used_mask_p1[category_idx]) category_idx <= first_free(used_mask_p1);
                 end
-                S_P1_CALC: begin
+                S_P1_CALC: if (dice_ready) begin
                     used_mask_p1[category_idx] <= 1'b1;
                     
                     // 상단 보너스 로직 (카테고리 0~5: Aces~Sixes)
@@ -171,7 +177,7 @@ module Game_FSM(
                     else if (btn2_prev) category_idx <= next_free(category_idx, 1'b0, used_mask_p2);
                     else if (used_mask_p2[category_idx]) category_idx <= first_free(used_mask_p2);
                 end
-                S_P2_CALC: begin
+                S_P2_CALC: if (dice_ready) begin
                     used_mask_p2[category_idx] <= 1'b1;
 
                     // 상단 보너스 로직 (카테고리 0~5: Aces~Sixes)

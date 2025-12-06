@@ -9,12 +9,12 @@
 *   **무작위 주사위 생성**: 32비트 LFSR(Linear Feedback Shift Register) 알고리즘을 사용하여 랜덤 주사위 값을 생성합니다.
 *   **Hold 기능**: 플레이어는 DIP 스위치를 사용하여 전략적으로 원하는 주사위를 유지(Hold)하고 나머지만 다시 굴릴 수 있습니다.
 *   **실시간 점수 계산**: 현재 주사위 조합에 따라 다양한 카테고리(Full House, Yacht 등)의 점수 규칙을 적용하여 계산합니다.
-*   **시각적 피드백 (Visual Feedback)**:
+*   **시각적 피드백**:
     *   **7-Segment Display**: 현재 주사위 5개의 값(1~6)과 선택 중인 점수 카테고리를 보여줍니다.
     *   **16x2 LCD**: 게임 상태(시작/종료), 현재 라운드, 그리고 두 플레이어의 실시간 총점을 표시합니다.
     *   **LEDs**: 현재 Hold 설정된 주사위, 점수 선택 모드(LED6), 그리고 누구의 턴인지(P1/P2)를 알려줍니다.
 
-## 하드웨어 요구사항 (Hardware Requirements)
+## 하드웨어 요구사항
 *   **FPGA 보드**: Xilinx Spartan-7 (XC7S75FGGA484-1)
 *   **입력 장치**:
     *   5x Button Switches (KEY PAD)
@@ -29,13 +29,13 @@
 ## 모듈 구조 
 | 모듈명 | 설명 |
 | :--- | :--- |
-| **`YachtDice_Top.v`** | 최상위 모듈로, 모든 하위 모듈과 물리적 I/O 핀을 연결합니다. |
-| **`Game_FSM.v`** | 게임의 상태(굴리기, 선택, 점수 계산, 턴 교체)를 관리하는 메인 제어 장치입니다. |
-| **`Dice_Manager.v`** | 무작위 주사위 값을 생성하고 Hold 로직을 처리합니다. |
-| **`Score_Calculator.v`** | 현재 주사위 값과 선택된 카테고리에 따른 점수를 계산합니다. |
-| **`Display_Controller.v`** | 7-Segment를 제어하여 주사위 값과 카테고리를 표시합니다. |
-| **`LCD_Controller.v`** | 16x2 Text LCD를 제어하여 게임 메시지와 점수를 출력합니다. |
-| **`Button_Debouncer.v`** | 기계적 버튼의 노이즈를 제거하여 안정적인 입력을 보장합니다. |
+| `YachtDice_Top.v` | 최상위 모듈로, 모든 하위 모듈과 물리적 I/O 핀을 연결합니다. |
+| `Game_FSM.v` | 게임의 상태(굴리기, 선택, 점수 계산, 턴 교체)를 관리하는 메인 제어 장치입니다. |
+| `Dice_Manager.v` | 무작위 주사위 값을 생성하고 Hold 로직을 처리합니다. |
+| `Score_Calculator.v` | 현재 주사위 값과 선택된 카테고리에 따른 점수를 계산합니다. |
+| `Display_Controller.v` | 7-Segment를 제어하여 주사위 값과 카테고리를 표시합니다. |
+| `LCD_Controller.v` | 16x2 Text LCD를 제어하여 게임 메시지와 점수를 출력합니다. |
+| `Button_Debouncer.v` | 기계적 버튼의 노이즈를 제거하여 안정적인 입력을 보장합니다. |
 
 자세한 모듈 정보는 `docs/README_Work.md`를 참고하세요.
 
@@ -43,7 +43,6 @@
 
 ### 1. 게임 시작
 *   **Reset 버튼 (KEY12)** 을 눌러 게임을 초기화합니다.
-<!-- *   LCD에 "GAME START" 문구가 표시됩니다. -->
 
 ### 2. 주사위 굴리기 
 *   **Player 1**부터 시작합니다.
@@ -63,9 +62,30 @@
 ### 4. 턴 교체 (Turn Change)
 *   점수 확정 후 상대방에게 턴이 넘어갑니다.
 *   **LED7 (Player 1)** 과 **LED8 (Player 2)** 이 점등되어 현재 누구의 턴인지 알려줍니다.
+*   턴이 시작될 때 모든 주사위 값은 **0으로 초기화**됩니다.
 
 ### 5. 게임 종료 (Game Over)
 *   게임은 총 **12 라운드**로 진행됩니다.
 *   모든 라운드가 종료되면 LCD에 최종 점수와 함께 "GAME END"가 표시됩니다.
 *   **승자 표시**: 점수가 더 높은 플레이어(P1 WIN, P2 WIN) 또는 무승부(DRAW)를 LCD에 표시합니다.
+
+## 팀원
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/7hyunii">
+        <img src="https://github.com/7hyunii.png" width="100px;" alt=""/>
+        <br />
+            7hyunii
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/cnvxlns">
+        <img src="https://github.com/cnvxlns.png"           width="100px;" alt=""/>
+        <br />
+            cnvxlns
+      </a>
+    </td>
+  </tr>
+</table>
 

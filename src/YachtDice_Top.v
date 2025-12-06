@@ -30,6 +30,7 @@ module YachtDice_Top(
     wire [3:0] round_val;          // 현재 라운드 (1~12)
     wire [8:0] p1_sc, p2_sc;       // 플레이어 1, 2의 총점
     wire [7:0] calc_score;         // 현재 주사위 조합에 대한 예상 점수
+    wire turn_start_pulse;
 
     // 1. 버튼 디바운서 인스턴스
     // BTN[0] (Key01): Roll
@@ -48,12 +49,15 @@ module YachtDice_Top(
         .btn0_roll(btn0_clean), .btn1_sel(btn1_clean), 
         .btn2_prev(btn2_clean), .btn3_next(btn3_clean),
         .current_calc_score(calc_score),
+        .hold_sw(SW),
+        .d1(d1), .d2(d2), .d3(d3), .d4(d4), .d5(d5),
         .current_state(state_debug),
         .player_turn(player_turn),
         .roll_trigger(roll_sig),
         .category_idx(cat_idx),
         .round_num(round_val),
-        .p1_score(p1_sc), .p2_score(p2_sc)
+        .p1_score(p1_sc), .p2_score(p2_sc),
+        .turn_start(turn_start_pulse)
     );
 
     // 3. 주사위 매니저
@@ -61,6 +65,7 @@ module YachtDice_Top(
         .clk(CLK), .reset_n(rst_n),
         .roll_en(roll_sig),
         .hold_sw(SW),
+        .clear_dice(turn_start_pulse),
         .dice1(d1), .dice2(d2), .dice3(d3), .dice4(d4), .dice5(d5)
     );
 

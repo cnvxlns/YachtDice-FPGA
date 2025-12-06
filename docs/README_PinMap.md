@@ -81,7 +81,7 @@
 
 #### 2) Digit Select (Anodes, `SEG_SEL[7:0]`)
 
-어느 자리를 켤지 결정하는 핀입니다. (Active Low)
+어느 자리를 켤지 결정하는 핀입니다.
 
 |  Port Index  |   Pin Loc   | Board Label | Game Function           | 표시 내용 예시 |
 | :-----------: | :----------: | :---------- | :---------------------- | :------------- |
@@ -91,7 +91,7 @@
 | **[3]** | **G3** | AR_SEG_S3   | **Dice 4 Value**  | 1 ~ 6          |
 | **[4]** | **L6** | AR_SEG_S4   | **Dice 5 Value**  | 1 ~ 6          |
 | **[5]** | **K1** | AR_SEG_S5   | **(Unused)**      | (Blank)        |
-| **[6]** | **K3** | AR_SEG_S6   | **Category (10)** | 1. 4n, FH 등   |
+| **[6]** | **K3** | AR_SEG_S6   | **Category (10)** | 1., 4n, FH 등   |
 | **[7]** | **K5** | AR_SEG_S7   | **Category (1)**  | (코드 뒷자리)  |
 
 <br>
