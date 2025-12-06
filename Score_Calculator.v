@@ -18,11 +18,11 @@ module Score_Calculator(
         score_out = 0;
 
         // 눈금 개수 세기
-        count[d1] = count[d1] + 1;
-        count[d2] = count[d2] + 1;
-        count[d3] = count[d3] + 1;
-        count[d4] = count[d4] + 1;
-        count[d5] = count[d5] + 1;
+        if (d1 >= 1 && d1 <= 6) count[d1] = count[d1] + 1;
+        if (d2 >= 1 && d2 <= 6) count[d2] = count[d2] + 1;
+        if (d3 >= 1 && d3 <= 6) count[d3] = count[d3] + 1;
+        if (d4 >= 1 && d4 <= 6) count[d4] = count[d4] + 1;
+        if (d5 >= 1 && d5 <= 6) count[d5] = count[d5] + 1;
 
         // 카테고리별 점수 계산
         case (category_sel)
